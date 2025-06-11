@@ -79,7 +79,7 @@ export async function POST(req: Request) {
             );
         }
 
-        if (!transcriptData.transcript || transcriptData.transcript.trim() === '') {
+        if (!transcriptData || transcriptData.trim() === '') {
             console.log('Empty transcript received');
             return NextResponse.json(
                 { 
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
         // Generate summary using Gemini
         console.log('Generating summary with Gemini:');
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-        const prompt = `Please provide a concise summary of the following video transcript:\n\n${transcriptData.transcript}`;
+        const prompt = `Please provide a concise summary of the following video transcript:\n\n${transcriptData}`;
         
         const result = await model.generateContent(prompt);
         const summary = result.response.text();
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
                 videoUrl: url,
                 userId: user.id,
                 summary,
-                videoTitle: transcriptData.title
+                videoTitle: url // Using URL as title since we don't have title from transcript
             }
         });
 
@@ -126,8 +126,8 @@ export async function POST(req: Request) {
         return NextResponse.json({ 
             message: 'Success',
             summary,
-            videoTitle: transcriptData.title,
-            id: Date.now().toString() // Temporary ID for new summaries
+            videoTitle: url, // Using URL as title
+            id: Date.now().toString()
         });
     } catch (error) {
         console.error('Error in API endpoint:', error);
