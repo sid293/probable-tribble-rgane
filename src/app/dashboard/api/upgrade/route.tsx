@@ -6,9 +6,8 @@ import { NextResponse } from 'next/server';
 const PADDLE_VENDOR_ID = process.env.PADDLE_VENDOR_ID || '';
 const PADDLE_API_KEY = process.env.PADDLE_API_KEY || '';
 const PADDLE_PRODUCT_ID = process.env.PADDLE_PRODUCT_ID || '';
-const PADDLE_ENVIRONMENT = 'sandbox';
 
-export async function POST(req: Request) {
+export async function POST() {
     console.log("dashboard api upgrade hit");
     try {
         const session = await auth();

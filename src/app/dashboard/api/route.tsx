@@ -2,7 +2,6 @@ import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { YoutubeTranscript } from 'youtube-transcript';
 import { getTranscript } from '@/lib/transcript'
 
 // Initialize Gemini
@@ -68,12 +67,12 @@ export async function POST(req: Request) {
         let transcriptData;
         try {
             transcriptData = await getTranscript(videoId);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Transcript error:', error);
             return NextResponse.json(
                 { 
                     message: 'This video does not have captions available. Please try a different video with captions enabled.',
-                    error: error.message
+                    error: error instanceof Error ? error.message : 'Unknown error'
                 },
                 { status: 400 }
             );

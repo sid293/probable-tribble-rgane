@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare module 'youtube-transcript-api' {
     interface TranscriptResponse {
         text: string;
@@ -17,7 +18,8 @@ declare module 'youtube-transcript-api' {
     
     function getTranscript(videoId: string, options?: TranscriptOptions): Promise<TranscriptResponse[]>;
     
-    export default {
-        getTranscript
+    const YoutubeTranscriptApi: {
+        getTranscript: typeof getTranscript;
     };
+    export default YoutubeTranscriptApi;
 } 

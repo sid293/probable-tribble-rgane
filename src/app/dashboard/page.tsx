@@ -18,7 +18,7 @@ export default function Dashboard() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [credits, setCredits] = useState<number>(0);
-    const [isUpgrading, setIsUpgrading] = useState(false);
+    const [isUpgrading] = useState(false);
     const { userId } = useAuth();
 
     useEffect(() => {
