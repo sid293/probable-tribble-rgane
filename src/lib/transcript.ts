@@ -1,4 +1,4 @@
-import TranscriptAPI from 'youtube-transcript-api';
+import YoutubeTranscript from 'youtube-transcript-api';
 
 interface CaptionSnippet {
     videoId: string;
@@ -20,6 +20,17 @@ interface Caption {
     etag: string;
     id: string;
     snippet: CaptionSnippet;
+}
+
+interface TranscriptResponse {
+  text: string;
+  duration: number;
+  offset: number;
+}
+
+interface TranscriptError {
+  message: string;
+  error: string;
 }
 
 async function getVideoDetails(videoId: string) {
@@ -70,48 +81,43 @@ async function getCaptionsContent(videoId: string, captionId: string) {
     }
 }
 
-export async function getTranscript(videoId: string) {
-    let videoDetails;
-    try {
-        console.log('Fetching video details for ID:', videoId);
-        videoDetails = await getVideoDetails(videoId);
-        console.log('Video title:', videoDetails.title);
+export async function getTranscript(videoId: string): Promise<string> {
+  try {
+    const transcript = await YoutubeTranscript.getTranscript(videoId);
+    return transcript.map((item: TranscriptResponse) => item.text).join(' ');
+  } catch (error) {
+    console.error('Error fetching transcript:', error);
+    throw new Error('Failed to fetch transcript');
+  }
+}
 
-        // Get transcript using youtube-transcript-api
-        console.log('Fetching transcript...');
-        const transcript = await TranscriptAPI.getTranscript(videoId);
-        
-        
-        if (!transcript || transcript.length === 0) {
-            throw new Error('No captions available for this video');
-        }
+export async function getTranscriptWithTimestamps(videoId: string): Promise<TranscriptResponse[]> {
+  try {
+    return await YoutubeTranscript.getTranscript(videoId);
+  } catch (error) {
+    console.error('Error fetching transcript with timestamps:', error);
+    throw new Error('Failed to fetch transcript with timestamps');
+  }
+}
 
-        const transcriptText = transcript.map((item: { text: string }) => item.text).join(' ');
-        console.log('Successfully fetched transcript');
-
-        return {
-            title: videoDetails.title,
-            transcript: transcriptText
-        };
-    } catch (error: any) {
-        console.error('Error in getTranscript:', error);
-        // Try with different language if first attempt fails
-        try {
-            console.log('Retrying with different language...');
-            const transcript = await TranscriptAPI.getTranscript(videoId, 'en');
-            const transcriptText = transcript.map((item: { text: string }) => item.text).join(' ');
-            
-            if (!videoDetails) {
-                videoDetails = await getVideoDetails(videoId);
-            }
-            
-            return {
-                title: videoDetails.title,
-                transcript: transcriptText
-            };
-        } catch (retryError: any) {
-            console.error('Error in retry attempt:', retryError);
-            throw new Error(`Failed to fetch transcript: ${retryError.message}`);
-        }
-    }
+export async function getTranscriptWithMetadata(videoId: string): Promise<{
+  transcript: TranscriptResponse[];
+  metadata: {
+    videoId: string;
+    timestamp: number;
+  };
+}> {
+  try {
+    const transcript = await YoutubeTranscript.getTranscript(videoId);
+    return {
+      transcript,
+      metadata: {
+        videoId,
+        timestamp: Date.now()
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching transcript with metadata:', error);
+    throw new Error('Failed to fetch transcript with metadata');
+  }
 }

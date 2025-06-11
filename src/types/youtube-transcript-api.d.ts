@@ -1,14 +1,23 @@
 declare module 'youtube-transcript-api' {
-    interface TranscriptItem {
+    interface TranscriptResponse {
         text: string;
         duration: number;
         offset: number;
     }
     
-    class TranscriptAPI {
-        static getTranscript(id: string, langCode?: string, config?: any): Promise<TranscriptItem[]>;
-        static validateID(id: string, config?: any): Promise<boolean>;
+    interface TranscriptOptions {
+        lang?: string;
+        country?: string;
     }
     
-    export default TranscriptAPI;
+    interface TranscriptError {
+        message: string;
+        error: string;
+    }
+    
+    function getTranscript(videoId: string, options?: TranscriptOptions): Promise<TranscriptResponse[]>;
+    
+    export default {
+        getTranscript
+    };
 } 
